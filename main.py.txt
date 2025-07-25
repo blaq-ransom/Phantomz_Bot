@@ -1,0 +1,33 @@
+import os
+import requests
+from telegram.ext import Updater, CommandHandler
+from apscheduler.schedulers.background import BackgroundScheduler
+from model import get_prediction  # We'll define this in model.py
+
+# Telegram bot token
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+
+updater = Updater(token=BOT_TOKEN, use_context=True)
+dispatcher = updater.dispatcher
+
+# Command: /start
+def start(update, context):
+    update.message.reply_text("Yo, I'm live. Type /predict to get today’s match predictions.")
+
+# Command: /predict
+def predict(update, context):
+    result = get_prediction()
+    update.message.reply_text(result)
+
+# Add commands to bot
+dispatcher.add_handler(CommandHandler("start", start))
+dispatcher.add_handler(CommandHandler("predict", predict))
+
+# Auto-run every 10 minutes
+scheduler = BackgroundScheduler()
+scheduler.add_job(lambda: updater.bot.send_message(chat_id="YOUR_CHAT_ID", text=get_prediction()), 'interval', minutes=10)
+scheduler.start()
+
+# Start bot
+updater.start_polling()
+updater.idle()

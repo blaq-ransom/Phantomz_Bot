@@ -1,0 +1,16 @@
+import requests
+
+def get_prediction():
+    url = "https://www.thesportsdb.com/api/v1/json/3/eventsnextleague.php?id=4328"  # Premier League
+    response = requests.get(url)
+    data = response.json()
+
+    matches = data.get("events", [])[:3]  # Get next 3 matches
+    result = "🔮 Match Predictions:\n"
+
+    for match in matches:
+        home = match['strHomeTeam']
+        away = match['strAwayTeam']
+        result += f"{home} vs {away} → {home} wins (test prediction)\n"
+
+    return result
